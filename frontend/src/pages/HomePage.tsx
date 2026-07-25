@@ -34,7 +34,7 @@ export default function HomePage() {
         dropoff_location: payload.dropoff,
         current_cycle_used: payload.cycleUsed,
       });
-      navigate(`/trips/${trip.id}`);
+      navigate("/results", { state: { trip } });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong");
       setLoading(false);

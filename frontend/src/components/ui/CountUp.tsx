@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from "react";
-import { useInView } from "framer-motion";
+import { useEffect, useState } from "react";
 
 interface Props {
   value: number;
@@ -9,12 +8,9 @@ interface Props {
 }
 
 export default function CountUp({ value, decimals = 0, duration = 1.1, suffix = "" }: Props) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-40px" });
   const [display, setDisplay] = useState(0);
 
   useEffect(() => {
-    if (!inView) return;
     const start = performance.now();
     let raf: number;
     function tick(now: number) {
@@ -26,11 +22,10 @@ export default function CountUp({ value, decimals = 0, duration = 1.1, suffix = 
     }
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inView, value]);
+  }, [value, duration]);
 
   return (
-    <span ref={ref}>
+    <span>
       {display.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}
       {suffix}
     </span>

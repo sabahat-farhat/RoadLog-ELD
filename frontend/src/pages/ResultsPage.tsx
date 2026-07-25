@@ -1,10 +1,8 @@
-import { useEffect, useRef, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { useRef, useState } from "react";
+import { useLocation, Link } from "react-router-dom";
 import { toPng } from "html-to-image";
 import { jsPDF } from "jspdf";
-import { Download, FileDown, ArrowLeft, Loader2 } from "lucide-react";
-import { getTrip } from "../api/client";
+import { Download, FileDown, ArrowLeft, Loader2, MapPinOff } from "lucide-react";
 import type { Trip } from "../types";
 import StatsCards from "../components/StatsCards";
 import RouteMap from "../components/RouteMap";
@@ -24,20 +22,15 @@ function SectionLabel({ n, title }: { n: string; title: string }) {
 }
 
 export default function ResultsPage() {
-  const { id } = useParams();
-  const [trip, setTrip] = useState<Trip | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  // Stateless app: the trip that was just computed rides in via router state
+  // (set by HomePage on navigate) rather than being fetched by an id. That
+  // means a direct link or a page refresh won't have it — handled below with
+  // an empty state rather than an error, since it's an expected case, not a
+  // failure.
+  const location = useLocation();
+  const trip = (location.state as { trip?: Trip } | null)?.trip ?? null;
   const sheetRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const [exportingAll, setExportingAll] = useState(false);
-
-  useEffect(() => {
-    if (!id) return;
-    setTrip(null);
-    setError(null);
-    getTrip(id)
-      .then(setTrip)
-      .catch((e) => setError(e instanceof Error ? e.message : "Failed to load trip"));
-  }, [id]);
 
   // On narrow viewports the log sheet's hour grid scrolls horizontally inside
   // its card (by design, for on-screen use). html-to-image only rasterizes what's
@@ -92,27 +85,27 @@ export default function ResultsPage() {
         if (i > 0) doc.addPage();
         doc.addImage(dataUrl, "PNG", (pageW - w) / 2, (pageH - h) / 2, w, h);
       }
-      doc.save(`eld-logs-trip-${trip.id}.pdf`);
+      const dest = trip?.dropoff_label.split(",")[0].replace(/[^a-z0-9]+/gi, "-").toLowerCase();
+      doc.save(`eld-logs-${dest || "trip"}.pdf`);
     } finally {
       setExportingAll(false);
     }
   }
 
-  if (error) {
-    return (
-      <div className="mx-auto max-w-3xl px-6 py-24 text-center">
-        <p className="text-[var(--color-danger)]">{error}</p>
-        <Link to="/" className="mt-4 inline-block text-sm text-[var(--color-accent)] underline">
-          Back to trip planner
-        </Link>
-      </div>
-    );
-  }
-
   if (!trip) {
     return (
-      <div className="flex min-h-[60svh] items-center justify-center">
-        <Loader2 className="animate-spin text-[var(--color-accent)]" size={28} />
+      <div className="mx-auto flex min-h-[60svh] max-w-md flex-col items-center justify-center px-6 text-center">
+        <MapPinOff size={26} className="mb-4 text-[var(--color-ink-faint)]" />
+        <h1 className="font-display text-lg font-semibold text-[var(--color-ink)]">No trip loaded</h1>
+        <p className="mt-2 text-sm text-[var(--color-ink-muted)]">
+          Results aren't saved between visits — plan a trip and you'll land here with it.
+        </p>
+        <Link
+          to="/"
+          className="mt-6 rounded-xl bg-[var(--color-accent)] px-5 py-2.5 text-sm font-bold text-[var(--color-accent-ink)] transition hover:brightness-110"
+        >
+          Plan a trip
+        </Link>
       </div>
     );
   }
@@ -176,13 +169,7 @@ export default function ResultsPage() {
       </RevealText>
       <div className="flex flex-col gap-8">
         {trip.daily_logs.map((log, i) => (
-          <motion.div
-            key={log.date}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.45 }}
-          >
+          <div key={log.date} className="animate-fade-up" style={{ animationDelay: `${Math.min(i, 4) * 0.08}s` }}>
             <div className="mb-2 flex justify-end">
               <button
                 onClick={() => downloadDayPng(i, log.date)}
@@ -204,7 +191,7 @@ export default function ResultsPage() {
                 dropoffLabel: trip.dropoff_label,
               }}
             />
-          </motion.div>
+          </div>
         ))}
       </div>
     </div>

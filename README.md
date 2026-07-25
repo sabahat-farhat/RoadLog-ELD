@@ -17,7 +17,6 @@ ready to export.
 - Daily log sheets rendered as SVG, matching the official FMCSA Driver's Daily Log grid —
   duty-status step line, remarks, totals, and multi-day splitting for longer trips
 - One-click PNG / PDF export of the generated logs
-- Trip history, saved and browsable
 
 ## Stack
 
@@ -62,9 +61,7 @@ the most efficient dispatch.
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `POST` | `/api/trips/` | Create a trip: `{current_location, pickup_location, dropoff_location, current_cycle_used}` (each location is `{label, lat, lon}`); returns the full computed trip |
-| `GET` | `/api/trips/history/` | List saved trips (summary fields) |
-| `GET` | `/api/trips/:id/` | Full trip detail — route geometry, stops, daily logs |
+| `POST` | `/api/trips/` | Create a trip: `{current_location, pickup_location, dropoff_location, current_cycle_used}` (each location is `{label, lat, lon}`); returns the full computed trip — route geometry, stops, and daily logs |
 
 ## Assumptions
 

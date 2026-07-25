@@ -5,8 +5,10 @@ import Header from "./components/Header";
 import HomePage from "./pages/HomePage";
 import { useLenis } from "./hooks/useLenis";
 
+// HistoryPage exists at ./pages/HistoryPage but isn't routed — the app runs
+// stateless (no database), so there's nothing to list. Re-add its route when
+// trip history comes back (see backend/trips/urls.py for the matching note).
 const ResultsPage = lazy(() => import("./pages/ResultsPage"));
-const HistoryPage = lazy(() => import("./pages/HistoryPage"));
 
 function PageFallback() {
   return (
@@ -26,8 +28,7 @@ function App() {
       <Suspense fallback={<PageFallback />}>
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<HomePage />} />
-          <Route path="/trips/:id" element={<ResultsPage />} />
-          <Route path="/history" element={<HistoryPage />} />
+          <Route path="/results" element={<ResultsPage />} />
         </Routes>
       </Suspense>
     </div>
