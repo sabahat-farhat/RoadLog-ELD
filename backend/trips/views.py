@@ -88,14 +88,7 @@ class TripCreateView(APIView):
         stops = build_stops(result["segments"])
         route_geometry = merge_geometry(leg1["geometry"], leg2["geometry"])
 
-        # Stateless by design (no database round-trip): the serverless deploy
-        # target has no persistent disk, so results are computed and handed
-        # straight back rather than saved. This intentionally leaves `id` and
-        # `created_at` unset (see TripSerializer) — the Trip model, migration,
-        # and history endpoints below are kept intact and easy to re-enable if
-        # a persistent database is added back later (swap `Trip(...)` for
-        # `Trip.objects.create(...)` and restore the routes in urls.py).
-        trip = Trip(
+        trip = Trip.objects.create(
             current_label=current["label"],
             current_lat=current["lat"],
             current_lon=current["lon"],
@@ -117,9 +110,6 @@ class TripCreateView(APIView):
         return Response(TripSerializer(trip).data, status=status.HTTP_201_CREATED)
 
 
-# Not currently wired up in urls.py (the app runs stateless, see TripCreateView
-# above) — kept ready to restore trip history once a persistent database is
-# back in the picture.
 class TripListView(generics.ListAPIView):
     queryset = Trip.objects.all()
     serializer_class = TripListSerializer

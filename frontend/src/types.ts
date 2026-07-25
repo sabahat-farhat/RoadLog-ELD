@@ -55,11 +55,8 @@ export interface DailyLog {
 }
 
 export interface Trip {
-  // Stateless backend: these are unset (null) on every response since trips
-  // aren't persisted. Kept nullable rather than removed so re-enabling a
-  // database later (see backend/trips/views.py) doesn't require a type change.
-  id: number | null;
-  created_at: string | null;
+  id: number;
+  created_at: string;
   current_label: string;
   current_lat: number;
   current_lon: number;

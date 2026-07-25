@@ -1,8 +1,9 @@
-import { useRef, useState } from "react";
-import { useLocation, Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useLocation, useParams, Link } from "react-router-dom";
 import { toPng } from "html-to-image";
 import { jsPDF } from "jspdf";
 import { Download, FileDown, ArrowLeft, Loader2, MapPinOff } from "lucide-react";
+import { getTrip } from "../api/client";
 import type { Trip } from "../types";
 import StatsCards from "../components/StatsCards";
 import RouteMap from "../components/RouteMap";
@@ -22,15 +23,24 @@ function SectionLabel({ n, title }: { n: string; title: string }) {
 }
 
 export default function ResultsPage() {
-  // Stateless app: the trip that was just computed rides in via router state
-  // (set by HomePage on navigate) rather than being fetched by an id. That
-  // means a direct link or a page refresh won't have it — handled below with
-  // an empty state rather than an error, since it's an expected case, not a
-  // failure.
+  // Fast path: HomePage navigates here with the freshly-computed trip already
+  // in router state, so it renders instantly with no network round-trip.
+  // Fallback: arriving from History, a direct link, or a refresh has no
+  // state, so fetch it by id instead.
+  const { id } = useParams();
   const location = useLocation();
-  const trip = (location.state as { trip?: Trip } | null)?.trip ?? null;
+  const [trip, setTrip] = useState<Trip | null>(() => (location.state as { trip?: Trip } | null)?.trip ?? null);
+  const [error, setError] = useState<string | null>(null);
   const sheetRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const [exportingAll, setExportingAll] = useState(false);
+
+  useEffect(() => {
+    if (trip || !id) return;
+    getTrip(id)
+      .then(setTrip)
+      .catch((e) => setError(e instanceof Error ? e.message : "Failed to load trip"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   // On narrow viewports the log sheet's hour grid scrolls horizontally inside
   // its card (by design, for on-screen use). html-to-image only rasterizes what's
@@ -92,20 +102,26 @@ export default function ResultsPage() {
     }
   }
 
-  if (!trip) {
+  if (error) {
     return (
       <div className="mx-auto flex min-h-[60svh] max-w-md flex-col items-center justify-center px-6 text-center">
-        <MapPinOff size={26} className="mb-4 text-[var(--color-ink-faint)]" />
-        <h1 className="font-display text-lg font-semibold text-[var(--color-ink)]">No trip loaded</h1>
-        <p className="mt-2 text-sm text-[var(--color-ink-muted)]">
-          Results aren't saved between visits — plan a trip and you'll land here with it.
-        </p>
+        <MapPinOff size={26} className="mb-4 text-[var(--color-danger)]" />
+        <h1 className="font-display text-lg font-semibold text-[var(--color-ink)]">Couldn't load that trip</h1>
+        <p className="mt-2 text-sm text-[var(--color-ink-muted)]">{error}</p>
         <Link
           to="/"
           className="mt-6 rounded-xl bg-[var(--color-accent)] px-5 py-2.5 text-sm font-bold text-[var(--color-accent-ink)] transition hover:brightness-110"
         >
           Plan a trip
         </Link>
+      </div>
+    );
+  }
+
+  if (!trip) {
+    return (
+      <div className="flex min-h-[60svh] items-center justify-center">
+        <Loader2 className="animate-spin text-[var(--color-accent)]" size={28} />
       </div>
     );
   }

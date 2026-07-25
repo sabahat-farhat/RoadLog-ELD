@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Plus } from "lucide-react";
+import { History, Plus } from "lucide-react";
 import clsx from "clsx";
 
 export default function Header() {
@@ -37,6 +37,7 @@ export default function Header() {
 
           <nav className="flex items-center gap-7">
             {navLink("/", "New Trip", <Plus size={13} />)}
+            {navLink("/history", "History", <History size={13} />)}
           </nav>
         </div>
       </div>
