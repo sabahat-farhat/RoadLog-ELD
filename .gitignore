@@ -1,0 +1,31 @@
+# Python / Django
+backend/venv/
+**/__pycache__/
+*.pyc
+*.pyo
+*.sqlite3
+backend/staticfiles/
+*.egg-info/
+.pytest_cache/
+
+# Node / Vite
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+npm-debug.log*
+
+# Env files (never commit real secrets/config — see .env.example files instead)
+.env
+.env.local
+.env.*.local
+
+# Deploy platform local state
+.vercel/
+.render/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
