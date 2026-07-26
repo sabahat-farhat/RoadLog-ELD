@@ -24,6 +24,10 @@ export default function HomePage() {
     pickup: GeocodeResult;
     dropoff: GeocodeResult;
     cycleUsed: number;
+    departureTime: string;
+    driverName: string;
+    truckNumber: string;
+    shippingDocNumber: string;
   }) {
     setLoading(true);
     setError(null);
@@ -33,6 +37,10 @@ export default function HomePage() {
         pickup_location: payload.pickup,
         dropoff_location: payload.dropoff,
         current_cycle_used: payload.cycleUsed,
+        departure_time: payload.departureTime,
+        driver_name: payload.driverName,
+        truck_number: payload.truckNumber,
+        shipping_doc_number: payload.shippingDocNumber,
       });
       navigate(`/trips/${trip.id}`, { state: { trip } });
     } catch (e) {

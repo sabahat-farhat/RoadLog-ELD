@@ -208,6 +208,9 @@ export default function ResultsPage() {
                 currentLabel: trip.current_label,
                 pickupLabel: trip.pickup_label,
                 dropoffLabel: trip.dropoff_label,
+                driverName: trip.driver_name,
+                truckNumber: trip.truck_number,
+                shippingDocNumber: trip.shipping_doc_number,
               }}
             />
           </div>

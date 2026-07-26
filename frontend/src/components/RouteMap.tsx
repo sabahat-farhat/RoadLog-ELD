@@ -2,6 +2,7 @@ import { useEffect, useMemo } from "react";
 import { MapContainer, TileLayer, Polyline, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import type { Stop } from "../types";
+import { formatTripTime } from "../lib/tripTime";
 
 const STOP_META: Record<Stop["type"] | "current", { color: string; label: string }> = {
   current: { color: "#4fd1c5", label: "Start" },
@@ -90,7 +91,7 @@ export default function RouteMap({ route, stops, current, className }: Props) {
               {s.label}
               <br />
               <span style={{ opacity: 0.7 }}>
-                {new Date(s.start).toLocaleString()} &middot; {s.duration_hours}h
+                {formatTripTime(s.start)} &middot; {s.duration_hours}h
               </span>
             </Popup>
           </Marker>

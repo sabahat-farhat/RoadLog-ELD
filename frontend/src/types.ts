@@ -9,6 +9,12 @@ export interface TripRequest {
   pickup_location: LocationInput;
   dropoff_location: LocationInput;
   current_cycle_used: number;
+  // Optional "YYYY-MM-DDTHH:MM" from a datetime-local input. Naive on purpose
+  // — see the matching comment on the backend's TripCreateSerializer.
+  departure_time?: string;
+  driver_name?: string;
+  truck_number?: string;
+  shipping_doc_number?: string;
 }
 
 export type StopType = "pickup" | "dropoff" | "fuel" | "break" | "rest" | "restart";
@@ -67,6 +73,9 @@ export interface Trip {
   dropoff_lat: number;
   dropoff_lon: number;
   current_cycle_used: number;
+  driver_name: string;
+  truck_number: string;
+  shipping_doc_number: string;
   total_miles: number;
   total_drive_hours: number;
   total_days: number;

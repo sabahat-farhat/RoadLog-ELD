@@ -18,6 +18,10 @@ ready to export.
   duty-status step line, remarks, totals, and multi-day splitting for longer trips
 - One-click PNG / PDF export of the generated logs
 - Trip history, saved and browsable
+- Optional departure date/time, so logs are anchored to a real, reproducible trip start
+  instead of whenever the request happens to be made
+- Optional driver name, truck/trailer #, and shipping doc # fields, filled onto the log
+  sheet's header instead of left blank
 
 ## Stack
 
@@ -32,9 +36,10 @@ ready to export.
 1. The frontend geocodes the three trip locations client-side against Nominatim's public
    search API (autocomplete), so the backend only ever receives resolved lat/lon pairs.
 2. The backend requests two OSRM routes (current→pickup, pickup→dropoff) and hands the legs to
-   a discrete-event HOS simulator, which walks the trip in bounded time chunks, always
-   advancing to whichever limit is closest and inserts the mandatory non-driving event
-   whenever a limit is hit:
+   a discrete-event HOS simulator, anchored to an explicit departure date/time if one was given
+   (defaulting to now, rounded to the hour, otherwise). The simulator walks the trip in bounded
+   time chunks, always advancing to whichever limit is closest, and inserts the mandatory
+   non-driving event whenever a limit is hit:
    - 11-hour driving limit / 14-hour on-duty window
    - 30-minute break after 8 cumulative hours of driving
    - 10 consecutive hours off duty to reset the 11/14-hour clocks
@@ -47,6 +52,12 @@ ready to export.
    way a real driver's log reads.
 4. The frontend renders the route on a map and draws each day's log as an SVG grid with the
    duty-status step-line, remarks, and totals, pixel-matched to the official paper form.
+
+All trip timestamps are naive "home-terminal wall-clock" values (no timezone offset) — the same
+basis a real FMCSA log uses, and the same basis throughout the app: the log grid, the map
+popups, and the trip timeline all parse and format those values identically, so a stop's time
+never disagrees between the map and the sheet it lands on regardless of the viewer's own
+timezone.
 
 ### Known simplifications
 
@@ -62,7 +73,7 @@ the most efficient dispatch.
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `POST` | `/api/trips/` | Create a trip: `{current_location, pickup_location, dropoff_location, current_cycle_used}` (each location is `{label, lat, lon}`); returns the full computed trip — route geometry, stops, and daily logs |
+| `POST` | `/api/trips/` | Create a trip: `{current_location, pickup_location, dropoff_location, current_cycle_used}` (each location is `{label, lat, lon}`), plus optional `departure_time`, `driver_name`, `truck_number`, `shipping_doc_number`; returns the full computed trip — route geometry, stops, and daily logs |
 | `GET` | `/api/trips/history/` | List saved trips (summary fields) |
 | `GET` | `/api/trips/:id/` | Full trip detail — route geometry, stops, daily logs |
 

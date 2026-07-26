@@ -73,6 +73,23 @@ class TripCreateView(APIView):
         pickup = data["pickup_location"]
         dropoff = data["dropoff_location"]
         cycle_used = data["current_cycle_used"]
+        driver_name = data.get("driver_name", "")
+        truck_number = data.get("truck_number", "")
+        shipping_doc_number = data.get("shipping_doc_number", "")
+
+        departure_time_raw = data.get("departure_time")
+        if departure_time_raw:
+            try:
+                start_time = datetime.fromisoformat(departure_time_raw).replace(second=0, microsecond=0)
+            except ValueError:
+                return Response(
+                    {"detail": "departure_time must be an ISO datetime string (e.g. 2026-07-28T09:00)."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        else:
+            # No departure given: default to now, rounded to the top of the
+            # hour for a clean-looking log rather than an arbitrary minute.
+            start_time = datetime.now().replace(minute=0, second=0, microsecond=0)
 
         try:
             leg1 = get_route_leg(current, pickup)
@@ -81,7 +98,6 @@ class TripCreateView(APIView):
             return Response({"detail": str(e)}, status=status.HTTP_502_BAD_GATEWAY)
 
         route_legs_raw = [leg1, leg2]
-        start_time = datetime.now().replace(minute=0, second=0, microsecond=0)
 
         result = simulate_trip(current, pickup, dropoff, cycle_used, route_legs_raw, start_time)
         daily_logs = build_daily_logs(result["segments"])
@@ -99,6 +115,9 @@ class TripCreateView(APIView):
             dropoff_lat=dropoff["lat"],
             dropoff_lon=dropoff["lon"],
             current_cycle_used=cycle_used,
+            driver_name=driver_name,
+            truck_number=truck_number,
+            shipping_doc_number=shipping_doc_number,
             total_miles=round(result["total_miles"], 1),
             total_drive_hours=round(result["total_drive_hours"], 2),
             total_days=len(daily_logs),

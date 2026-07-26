@@ -18,6 +18,10 @@ class Trip(models.Model):
 
     current_cycle_used = models.FloatField()
 
+    driver_name = models.CharField(max_length=255, blank=True, default="")
+    truck_number = models.CharField(max_length=100, blank=True, default="")
+    shipping_doc_number = models.CharField(max_length=100, blank=True, default="")
+
     total_miles = models.FloatField(default=0)
     total_drive_hours = models.FloatField(default=0)
     total_days = models.IntegerField(default=0)

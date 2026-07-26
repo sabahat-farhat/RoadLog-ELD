@@ -57,6 +57,9 @@ interface Props {
     currentLabel: string;
     pickupLabel: string;
     dropoffLabel: string;
+    driverName: string;
+    truckNumber: string;
+    shippingDocNumber: string;
   };
 }
 
@@ -97,10 +100,12 @@ const LogSheet = forwardRef<HTMLDivElement, Props>(({ log, dayIndex, totalDays, 
         </div>
       </div>
 
-      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
         <InfoBox label="Total Miles Today" value={`${log.total_miles.toFixed(1)} mi`} />
+        <InfoBox label="Driver" value={meta.driverName || "—"} />
+        <InfoBox label="Truck / Trailer #" value={meta.truckNumber || "—"} />
         <InfoBox label="Carrier" value="RoadLog ELD (Demo)" />
-        <InfoBox label="Vehicle" value="Unit — Auto Route" />
+        <InfoBox label="Shipping Doc #" value={meta.shippingDocNumber || "—"} />
         <InfoBox label="Shipper / Commodity" value={meta.pickupLabel} />
       </div>
 

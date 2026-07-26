@@ -1,5 +1,6 @@
 import { Fuel, Coffee, BedDouble, RotateCcw, PackageCheck, Flag, Navigation } from "lucide-react";
 import type { Stop } from "../types";
+import { formatTripTime } from "../lib/tripTime";
 
 const META: Record<Stop["type"], { color: string; icon: typeof Fuel; label: string }> = {
   pickup: { color: "#4fd1c5", icon: PackageCheck, label: "Pickup" },
@@ -27,7 +28,7 @@ export default function StopTimeline({ stops, currentLabel }: { stops: Stop[]; c
               Icon={m.icon}
               label={m.label}
               sub={s.label}
-              time={new Date(s.start).toLocaleString(undefined, { weekday: "short", hour: "numeric", minute: "2-digit" })}
+              time={formatTripTime(s.start, { weekday: "short", hour: "numeric", minute: "2-digit" })}
             />
           );
         })}
