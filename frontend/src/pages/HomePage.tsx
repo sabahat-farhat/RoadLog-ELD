@@ -43,7 +43,7 @@ export default function HomePage() {
 
   return (
     <div className="mx-auto grid max-w-7xl gap-14 px-6 py-14 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-20">
-      <div className="relative order-2 lg:order-1">
+      <div className="relative">
         <div className="pointer-events-none absolute -left-10 top-1/2 hidden h-[420px] w-[520px] -translate-y-1/2 opacity-70 lg:block">
           <RouteIllustration />
         </div>
@@ -90,7 +90,6 @@ export default function HomePage() {
         initial={{ opacity: 0, x: 24 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="order-1 lg:order-2"
       >
         <TripForm onSubmit={handleSubmit} loading={loading} error={error} />
       </motion.div>
