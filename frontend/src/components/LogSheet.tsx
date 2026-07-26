@@ -22,6 +22,12 @@ const PAD = 20;
 const SVG_W = LEFT_W + GRID_W + TOTALS_W + PAD * 2;
 const SVG_H = TOP_LABEL_H + GRID_H + BOTTOM_LABEL_H + PAD * 2;
 
+// Exact pixel width the card needs to fit the SVG grid without horizontal
+// scroll — used when exporting to PNG/PDF so the capture uses a known-good
+// fixed width instead of letting the browser guess a "max-content" size
+// (which can blow up unpredictably with a nested overflow-x-auto child).
+export const LOGSHEET_EXPORT_WIDTH = SVG_W + 64;
+
 function hourLabel(h: number) {
   if (h === 0 || h === 24) return "Mid night";
   if (h === 12) return "Noon";

@@ -8,7 +8,7 @@ import type { Trip } from "../types";
 import StatsCards from "../components/StatsCards";
 import RouteMap from "../components/RouteMap";
 import StopTimeline from "../components/StopTimeline";
-import LogSheet from "../components/LogSheet";
+import LogSheet, { LOGSHEET_EXPORT_WIDTH } from "../components/LogSheet";
 import MagneticButton from "../components/ui/MagneticButton";
 import RevealText from "../components/ui/RevealText";
 
@@ -45,12 +45,15 @@ export default function ResultsPage() {
   // On narrow viewports the log sheet's hour grid scrolls horizontally inside
   // its card (by design, for on-screen use). html-to-image only rasterizes what's
   // visible, so a naive capture crops the grid. Fix: temporarily force the card
-  // to its natural full width (overriding the responsive clipping) before
-  // capturing, then restore it so on-screen layout is untouched.
+  // to an exact known-good pixel width (matching the SVG's real size) before
+  // capturing, then restore it so on-screen layout is untouched. Deliberately
+  // NOT "max-content" — that sizing keyword can blow up unpredictably when a
+  // descendant has overflow-x-auto (the SVG wrapper below does), producing a
+  // wildly oversized, squashed-looking capture.
   async function captureLogSheet(node: HTMLDivElement) {
     const prevWidth = node.style.width;
     const prevMaxWidth = node.style.maxWidth;
-    node.style.width = "max-content";
+    node.style.width = `${LOGSHEET_EXPORT_WIDTH}px`;
     node.style.maxWidth = "none";
     await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
     try {
