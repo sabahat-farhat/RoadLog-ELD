@@ -5,7 +5,7 @@ dropoff, and how many hours of the 70-hour/8-day cycle are already used — it p
 compliant route with every mandated stop mapped out, and auto-draws FMCSA daily log sheets,
 ready to export.
 
-**Live demo:** _add your deployed URL here_
+**Live demo:** [road-log-eld-view.vercel.app](https://road-log-eld-view.vercel.app/)
 
 ## Features
 
